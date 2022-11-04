@@ -41,7 +41,7 @@ public class UsuarioController {
         usuarioDTO.setSenha(encoder.encode(usuarioDTO.getSenha()));
         return new ResponseEntity<>(usuarioService.cadastrarUsuario(usuarioDTO), HttpStatus.CREATED);}
         catch (DataIntegrityViolationException e) {
-            return new ResponseEntity<>("Usuário já existente",(HttpStatus.PRECONDITION_FAILED));
+            return new ResponseEntity<>("Usuário já existente.",(HttpStatus.PRECONDITION_FAILED));
         }
     }
 
