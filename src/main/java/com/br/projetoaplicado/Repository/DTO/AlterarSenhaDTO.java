@@ -10,6 +10,7 @@ import javax.validation.constraints.NotNull;
 public class AlterarSenhaDTO {
 
     private Long id;
+    private String email;
     @NotNull
     @NotBlank
     private String senha;

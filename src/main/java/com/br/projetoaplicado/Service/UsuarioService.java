@@ -34,15 +34,16 @@ public class UsuarioService {
         return usuario.orElse(null);
     }
 
-    public Usuario editarUsuario(Long id, EditarUsuarioDTO editarUsuarioDTO) {
+    public String editarUsuario(Long id, EditarUsuarioDTO editarUsuarioDTO) {
         Optional<Usuario> usuario = usuarioRepository.findById(id);
         if (usuario.isPresent()) {
             usuario.get().setNome(editarUsuarioDTO.getNome());
             usuario.get().setEmail(editarUsuarioDTO.getEmail());
             usuario.get().setSenha(editarUsuarioDTO.getSenha());
             usuarioRepository.save(usuario.get());
+            return "Usuário editado com sucesso.";
         }
-        return usuario.orElseThrow(() -> new UserNotFoundException());
+        throw new UserNotFoundException();
     }
 
     public String excluirUsuario (Long id) {
@@ -53,12 +54,13 @@ public class UsuarioService {
         }
         throw new UserNotFoundException();
     }
-    public Usuario alterarSenha(Long id, AlterarSenhaDTO alterarSenhaDTO){
-        Optional<Usuario> usuario = usuarioRepository.findById(id);
+    public String alterarSenha(String email, AlterarSenhaDTO alterarSenhaDTO){
+        Optional<Usuario> usuario = usuarioRepository.findByEmail(email);
         if(usuario.isPresent()) {
             usuario.get().setSenha(alterarSenhaDTO.getSenha());
+            return "Senha alterada com sucesso.";
         }
-        return usuario.orElseThrow(() -> new UserNotFoundException());
+        throw new UserNotFoundException();
     }
 
     public Usuario consultarPorId (Long id){

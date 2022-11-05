@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -51,11 +52,12 @@ public class UsuarioController {
     }
 
     @PutMapping("/editar/{id}")
-    public ResponseEntity<Usuario> editarUsuario(@PathVariable("id") Long id, @Valid @RequestBody EditarUsuarioDTO editarUsuarioDTO) throws Exception{
+    public ResponseEntity<String> editarUsuario(@PathVariable("id") Long id, @Valid @RequestBody EditarUsuarioDTO editarUsuarioDTO) throws Exception{
         try{
-        return new ResponseEntity<>(usuarioService.editarUsuario(id, editarUsuarioDTO), HttpStatus.OK);}
+            editarUsuarioDTO.setSenha(encoder.encode(editarUsuarioDTO.getSenha()));
+            return new ResponseEntity<>(usuarioService.editarUsuario(id, editarUsuarioDTO), HttpStatus.OK); }
         catch (DataIntegrityViolationException e) {
-            return new ResponseEntity<>((HttpStatus.PRECONDITION_FAILED));
+            return new ResponseEntity<>("Já existe um usuário com esse email.",HttpStatus.PRECONDITION_FAILED);
         }
     }
     @GetMapping("/consultarPorNome")
@@ -72,15 +74,16 @@ public class UsuarioController {
         return new ResponseEntity<>(usuarioService.consultarPorId(id), HttpStatus.OK);
     }
 
-    @PatchMapping("/alterarSenha/{id}")
-    public ResponseEntity<Usuario> alterarSenha(@PathVariable("id") Long id, @Valid @RequestBody AlterarSenhaDTO alterarSenhaDTO) {
+    @PatchMapping("/alterarSenha/{email}")
+    public ResponseEntity<String> alterarSenha(@PathVariable("email") String email, @Valid @RequestBody AlterarSenhaDTO alterarSenhaDTO) {
         alterarSenhaDTO.setSenha(encoder.encode(alterarSenhaDTO.getSenha()));
-        return new ResponseEntity<>(usuarioService.alterarSenha(id, alterarSenhaDTO), HttpStatus.OK);
+        return new ResponseEntity<>(usuarioService.alterarSenha(email, alterarSenhaDTO), HttpStatus.OK);
     }
 
     @DeleteMapping("/excluir/{id}")
     public String excluirUsuario(@PathVariable ("id") Long id){
         return usuarioService.excluirUsuario(id);
     }
+
 
 }
