@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -29,12 +30,22 @@ public class UserControllerAdvice {
 
     @ResponseBody
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<MessageExceptionHandler> userNotFound (UserNotFoundException userNotFound ){
+    public ResponseEntity<MessageExceptionHandler> userNotFound (UserNotFoundException e ){
         MessageExceptionHandler erro = new MessageExceptionHandler(
                 new Date(), HttpStatus.NOT_FOUND.value(), "Usuário não foi encontrado"
         );
         return new ResponseEntity<>(erro, HttpStatus.NOT_FOUND);
     }
+
+    @ResponseBody
+    @ExceptionHandler(Dataintegrityviolationexception.class)
+    public ResponseEntity<MessageExceptionHandler> dataintegrityviolationexception (Dataintegrityviolationexception e){
+        MessageExceptionHandler erro = new MessageExceptionHandler(
+                new Date(), HttpStatus.BAD_REQUEST.value(), e.getMessage() );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
+    }
+
+
 
     @ResponseBody
     @ExceptionHandler(MethodArgumentNotValidException.class)

@@ -13,6 +13,9 @@ public class MessageExceptionHandler {
     private Integer status;
     private String message;
 
+    public MessageExceptionHandler(){
+        super();
+    }
     public MessageExceptionHandler (Date timestamp, Integer status,String message){
         this.timestamp = timestamp;
         this.status = status;

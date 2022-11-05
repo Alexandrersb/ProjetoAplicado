@@ -1,5 +1,6 @@
 package com.br.projetoaplicado.Controller;
 
+import com.br.projetoaplicado.ExceptionHandler.Dataintegrityviolationexception;
 import com.br.projetoaplicado.Model.Usuario;
 import com.br.projetoaplicado.Repository.DTO.AlterarSenhaDTO;
 import com.br.projetoaplicado.Repository.DTO.CadastrarUsuarioDTO;
@@ -38,12 +39,8 @@ public class UsuarioController {
 
     @PostMapping("/cadastrar")
     public ResponseEntity<String> addUsuario (@Valid @RequestBody CadastrarUsuarioDTO usuarioDTO) throws Exception {
-        try{
         usuarioDTO.setSenha(encoder.encode(usuarioDTO.getSenha()));
-        return new ResponseEntity<>(usuarioService.cadastrarUsuario(usuarioDTO), HttpStatus.CREATED);}
-        catch (DataIntegrityViolationException e) {
-            return new ResponseEntity<>("Usuário já existente.",(HttpStatus.PRECONDITION_FAILED));
-        }
+        return new ResponseEntity<>(usuarioService.cadastrarUsuario(usuarioDTO), HttpStatus.CREATED);
     }
 
     @GetMapping("/consultar")
@@ -57,7 +54,7 @@ public class UsuarioController {
             editarUsuarioDTO.setSenha(encoder.encode(editarUsuarioDTO.getSenha()));
             return new ResponseEntity<>(usuarioService.editarUsuario(id, editarUsuarioDTO), HttpStatus.OK); }
         catch (DataIntegrityViolationException e) {
-            return new ResponseEntity<>("Já existe um usuário com esse email.",HttpStatus.PRECONDITION_FAILED);
+            throw new Dataintegrityviolationexception("Já possui um usuário com esse email cadastrado.");
         }
     }
     @GetMapping("/consultarPorNome")
