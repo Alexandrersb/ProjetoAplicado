@@ -41,11 +41,18 @@ public class UserControllerAdvice {
     @ExceptionHandler(Dataintegrityviolationexception.class)
     public ResponseEntity<MessageExceptionHandler> dataintegrityviolationexception (Dataintegrityviolationexception e){
         MessageExceptionHandler erro = new MessageExceptionHandler(
-                new Date(), HttpStatus.BAD_REQUEST.value(), e.getMessage() );
+                new Date(), HttpStatus.BAD_REQUEST.value(), "Já possui um usuário com esse email cadastrado." );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
     }
 
-
+    @ResponseBody
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<MessageExceptionHandler> constraintViolationException (ConstraintViolationException e){
+        MessageExceptionHandler erro = new MessageExceptionHandler(
+                new Date(), HttpStatus.BAD_REQUEST.value(),"Email não está no formato correto."
+        );
+        return new ResponseEntity<>(erro, HttpStatus.BAD_REQUEST);
+    }
 
     @ResponseBody
     @ExceptionHandler(MethodArgumentNotValidException.class)

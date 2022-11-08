@@ -1,5 +1,6 @@
 package com.br.projetoaplicado.Controller;
 
+import com.br.projetoaplicado.ExceptionHandler.ConstraintViolationException;
 import com.br.projetoaplicado.ExceptionHandler.Dataintegrityviolationexception;
 import com.br.projetoaplicado.Model.Usuario;
 import com.br.projetoaplicado.Repository.DTO.AlterarSenhaDTO;
@@ -14,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -36,9 +36,8 @@ public class UsuarioController {
         this.encoder = encoder;
     }
 
-
     @PostMapping("/cadastrar")
-    public ResponseEntity<String> addUsuario (@Valid @RequestBody CadastrarUsuarioDTO usuarioDTO) throws Exception {
+    public ResponseEntity<Usuario> addUsuario (@Valid @RequestBody CadastrarUsuarioDTO usuarioDTO) throws Exception {
         usuarioDTO.setSenha(encoder.encode(usuarioDTO.getSenha()));
         return new ResponseEntity<>(usuarioService.cadastrarUsuario(usuarioDTO), HttpStatus.CREATED);
     }
@@ -49,12 +48,15 @@ public class UsuarioController {
     }
 
     @PutMapping("/editar/{id}")
-    public ResponseEntity<String> editarUsuario(@PathVariable("id") Long id, @Valid @RequestBody EditarUsuarioDTO editarUsuarioDTO) throws Exception{
+    public ResponseEntity<Usuario> editarUsuario(@PathVariable("id") Long id,@Valid @RequestBody EditarUsuarioDTO editarUsuarioDTO) throws Exception{
         try{
             editarUsuarioDTO.setSenha(encoder.encode(editarUsuarioDTO.getSenha()));
             return new ResponseEntity<>(usuarioService.editarUsuario(id, editarUsuarioDTO), HttpStatus.OK); }
         catch (DataIntegrityViolationException e) {
             throw new Dataintegrityviolationexception("Já possui um usuário com esse email cadastrado.");
+        }
+        catch (ConstraintViolationException e) {
+            throw new ConstraintViolationException("Email não está no formato correto");
         }
     }
     @GetMapping("/consultarPorNome")
@@ -72,7 +74,7 @@ public class UsuarioController {
     }
 
     @PatchMapping("/alterarSenha/{email}")
-    public ResponseEntity<String> alterarSenha(@PathVariable("email") String email, @Valid @RequestBody AlterarSenhaDTO alterarSenhaDTO) {
+    public ResponseEntity<Usuario> alterarSenha(@PathVariable("email") String email, @Valid @RequestBody AlterarSenhaDTO alterarSenhaDTO) {
         alterarSenhaDTO.setSenha(encoder.encode(alterarSenhaDTO.getSenha()));
         return new ResponseEntity<>(usuarioService.alterarSenha(email, alterarSenhaDTO), HttpStatus.OK);
     }

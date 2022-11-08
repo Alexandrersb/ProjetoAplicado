@@ -1,6 +1,7 @@
 package com.br.projetoaplicado.Service;
 
 
+import com.br.projetoaplicado.ExceptionHandler.ConstraintViolationException;
 import com.br.projetoaplicado.ExceptionHandler.Dataintegrityviolationexception;
 import com.br.projetoaplicado.ExceptionHandler.UserNotFoundException;
 import com.br.projetoaplicado.Model.Usuario;
@@ -21,7 +22,7 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    public String cadastrarUsuario(CadastrarUsuarioDTO usuarioDTO){
+    public Usuario cadastrarUsuario(CadastrarUsuarioDTO usuarioDTO){
 
         try{
         Usuario usuario = new Usuario();
@@ -29,9 +30,12 @@ public class UsuarioService {
         usuario.setSenha(usuarioDTO.getSenha());
         usuario.setEmail(usuarioDTO.getEmail());
         usuarioRepository.save(usuario);
-        return "Usuário cadastrado com sucesso";
+        return usuario;
         } catch (DataIntegrityViolationException e) {
             throw new Dataintegrityviolationexception("Já possui um usuário com esse email cadastrado.");
+        }
+        catch (ConstraintViolationException e) {
+            throw new ConstraintViolationException("Email não está no formato correto");
         }
     }
 
@@ -40,14 +44,14 @@ public class UsuarioService {
         return usuario.orElse(null);
     }
 
-    public String editarUsuario(Long id, EditarUsuarioDTO editarUsuarioDTO) {
+    public Usuario editarUsuario(Long id, EditarUsuarioDTO editarUsuarioDTO) {
         Optional<Usuario> usuario = usuarioRepository.findById(id);
         if (usuario.isPresent()) {
             usuario.get().setNome(editarUsuarioDTO.getNome());
             usuario.get().setEmail(editarUsuarioDTO.getEmail());
             usuario.get().setSenha(editarUsuarioDTO.getSenha());
             usuarioRepository.save(usuario.get());
-            return "Usuário editado com sucesso.";
+            return usuario.orElse(null);
         }
         throw new UserNotFoundException();
     }
@@ -60,11 +64,11 @@ public class UsuarioService {
         }
         throw new UserNotFoundException();
     }
-    public String alterarSenha(String email, AlterarSenhaDTO alterarSenhaDTO){
+    public Usuario alterarSenha(String email, AlterarSenhaDTO alterarSenhaDTO){
         Optional<Usuario> usuario = usuarioRepository.findByEmail(email);
         if(usuario.isPresent()) {
             usuario.get().setSenha(alterarSenhaDTO.getSenha());
-            return "Senha alterada com sucesso.";
+            return usuario.orElse(null);
         }
         throw new UserNotFoundException();
     }

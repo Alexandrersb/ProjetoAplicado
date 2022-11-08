@@ -8,6 +8,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+
 @Entity
 @Getter
 @Setter
@@ -19,6 +20,8 @@ public class Usuario {
     private String nome;
     @Column(unique=true)
     @Email
+    @NotBlank
+    @NotNull
     private String email;
     private String senha;
 
