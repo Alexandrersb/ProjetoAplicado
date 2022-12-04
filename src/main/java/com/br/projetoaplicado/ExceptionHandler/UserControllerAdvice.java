@@ -17,10 +17,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
@@ -54,26 +51,28 @@ public class UserControllerAdvice {
         return new ResponseEntity<>(erro, HttpStatus.BAD_REQUEST);
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<MessageExceptionHandler> argumentsNotValid (MethodArgumentNotValidException argumentNotValid){
-
-        BindingResult result = argumentNotValid.getBindingResult();
-        List<FieldError> fieldErrors = result.getFieldErrors();
-
-        StringBuilder sb = new StringBuilder ("Os campos seguintes não podem ser nulos ou passados em branco: ");
-        for (FieldError fieldError : fieldErrors) {
-            sb.append(" | ");
-            sb.append(" -> ");
-            sb.append(fieldError.getField());
-            sb.append(" <- ");
-        }
-
-        MessageExceptionHandler erro = new MessageExceptionHandler(
-                new Date(), HttpStatus.BAD_REQUEST.value(), sb.toString()
-        );
-        return new ResponseEntity<>(erro, HttpStatus.BAD_REQUEST);
+    public Map<String, String> argumentsNotValid(MethodArgumentNotValidException e) {
+        Map<String, String> errors = new HashMap<>();
+        e.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return errors;
     }
+
+    @ResponseBody
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<MessageExceptionHandler> responsestatusexception (ResponseStatusException e){
+        MessageExceptionHandler erro = new MessageExceptionHandler(
+                new Date(), HttpStatus.UNAUTHORIZED.value(),"Token utilizado não está correto"
+        );
+        return new ResponseEntity<>(erro, HttpStatus.UNAUTHORIZED);
+    }
+
 
 
 }
